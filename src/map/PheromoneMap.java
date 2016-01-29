@@ -88,7 +88,7 @@ public class PheromoneMap implements Network{
 	@Override public String toString(){
 		StringBuffer buffer=new StringBuffer("### pheromone edge(s) ###\n");
 		for(List<PheromoneEdge> list:edges.values()){
-			list.forEach(l->buffer.append(l).append("\n"));
+			list.stream().forEach(l->buffer.append(l).append("\n"));
 		}
 		buffer.append("########## end ##########");
 		return buffer.toString();

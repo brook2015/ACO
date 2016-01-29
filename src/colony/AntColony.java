@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import map.Network;
 import map.PheromoneGraph;
 import nest.Nest;
-import nest.UniqueOriginNest;
+import nest.SpecificOriginNest;
 
 public class AntColony {
 	private final Network network;
@@ -20,7 +20,6 @@ public class AntColony {
 	
 	public void initiate(Nest nest){
 		ants=nest.produceAntColony(amount);
-		print();
 	}
 	
 	public void iterate(){
@@ -30,7 +29,6 @@ public class AntColony {
 					.collect(Collectors.toList());
 			if(target.isEmpty())break;
 			target.forEach(Ant::move);
-			print();
 		}
 		network.volatilize();
 		ants.forEach(Ant::updatePheromone);
@@ -39,20 +37,19 @@ public class AntColony {
 	public void print(){
 		ants.forEach(System.out::println);
 	}
-	
-	public void show(){
-		System.out.println(network);
-	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Network network=PheromoneGraph.getGraphDemo();
+		Network network=PheromoneGraph.getGraphDemo2();
+		//Network network=PheromoneMap.getMapDemo2();
 		AntColony colony=new AntColony(1,network);
 		int iterate=50;
+		Nest nest=new SpecificOriginNest(1,network);
 		for(int i=0;i<iterate;i++){
-			colony.initiate(new UniqueOriginNest(network));
+			colony.initiate(nest);
 			colony.iterate();
-			colony.show();
 		}
+		colony.print();
+		//System.out.println(network);
 	}
 }

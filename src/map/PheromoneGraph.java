@@ -61,7 +61,8 @@ public class PheromoneGraph implements Network{
 	
 	public PheromoneEdge getEdge(int from,int to){
 		Optional<PheromoneEdge> target=edges.stream()
-				.filter(edge->from==edge.from()&&to==edge.to()).findFirst();
+				.filter(edge->from==edge.from()&&to==edge.to())
+				.findFirst();
 		if(!target.isPresent()){
 			throw new NoSuchElementException("no such edge");
 		}
@@ -73,29 +74,37 @@ public class PheromoneGraph implements Network{
 	}
 	
 	@Override public String toString(){
-		String output="### pheromone edge(s) ###\n";
+		StringBuffer buffer=new StringBuffer("### pheromone edge(s) ###\n");
 		for(PheromoneEdge edge:edges){
-			output+=edge+"\n";
+			buffer.append(edge).append("\n");
 		}
-		output+="########## end ##########";
-		return output;
+		buffer.append("########## end ##########");
+		return buffer.toString();
 	}
 	
-	public static PheromoneGraph getGraphDemo(){
+	public static PheromoneGraph getGraphDemo1(){
 		PheromoneGraph graph=new PheromoneGraph();
 		graph.initiate(new File("doc/table.txt"));
+		return graph;
+	}
+	
+	public static PheromoneGraph getGraphDemo2(){
+		PheromoneGraph graph=new PheromoneGraph();
+		graph.initiate(new File("doc/graph.txt"));
 		return graph;
 	}
 	
 	@Override
 	public List<PheromoneEdge> getEdges(int from) {
 		// TODO Auto-generated method stub
-		return edges.stream().filter(edge->from==edge.from()).collect(Collectors.toList());
+		return edges.stream()
+				.filter(edge->from==edge.from())
+				.collect(Collectors.toList());
 	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Network network=PheromoneGraph.getGraphDemo();
+		Network network=PheromoneGraph.getGraphDemo1();
 		System.out.println(network);
 	}
 }

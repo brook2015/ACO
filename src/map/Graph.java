@@ -57,11 +57,11 @@ public class Graph {
 			throw new IllegalArgumentException("invalid vertexes");
 		}
 		PheromonedGraph graph=new PheromonedGraph();
-		double defaultPheromone=1.0f;
+		//double defaultPheromone=1.0f;
 		for(int from:vertexes){
 			for(int to:vertexes){
 				if(from==to)continue;
-				double distance=shortestDistance(from,to);
+				//double distance=shortestDistance(from,to);
 				//graph.addPheromonedEdge(new PheromonedEdge(from,to,distance,defaultPheromone));
 			}
 		}

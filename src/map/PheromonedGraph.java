@@ -52,7 +52,9 @@ public class PheromonedGraph {
 	}
 	
 	public PheromoneEdge getEdge(int from,int to){
-		Optional<PheromoneEdge> target=edges.get(from).stream().filter(edge->to==edge.to()).findFirst();
+		Optional<PheromoneEdge> target=edges.get(from).stream()
+				.filter(edge->to==edge.to())
+				.findFirst();
 		if(!target.isPresent())throw new NoSuchElementException("invalid vertex");
 		return target.get();
 	}
@@ -72,7 +74,9 @@ public class PheromonedGraph {
 		// TODO Auto-generated method stub
 		PheromonedGraph graph=new PheromonedGraph();
 		graph.initiate(new File("doc/table.txt"));
-		System.out.println(graph.vertexes().stream().map(g->g.toString()).collect(Collectors.joining("/")));
+		System.out.println(graph.vertexes().stream()
+				.map(g->g.toString())
+				.collect(Collectors.joining("/")));
 	}
 
 }

@@ -34,14 +34,16 @@ public class SpecificOriginNest implements Nest{
 		vertexes.removeIf(vertex->origin==vertex.intValue());
 		int[] groups=group(vertexes.size(),amount,1);
 		for(int i=0;i<amount;i++){
-			ants.add(new Ant(network).initiate(groups[i]+1,origin,vertexes));
+			Ant ant=new Ant(network);
+			ant.initiate(groups[i]+1,origin,vertexes);
+			ants.add(ant);
 		}
 		return ants;
 	}
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Nest nest=new SpecificOriginNest(3,PheromoneGraph.getGraphDemo());
+		Nest nest=new SpecificOriginNest(3,PheromoneGraph.getGraphDemo1());
 		nest.produceAntColony(2).forEach(System.out::println);
 	}
 }

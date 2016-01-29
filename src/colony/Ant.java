@@ -1,36 +1,41 @@
 package colony;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import map.Network;
 import map.PheromoneEdge;
-import map.PheromoneMap;
 
 public class Ant {
 	private int id;
-	private static int index=0;
 	private int count;
 	private int current;
-	private Network network;
+	private double length;
+	private final Network network;
+	private final List<PheromoneEdge> route;
+	private static int index=0;
 	private Collection<Integer> permission;
-	private final Set<PheromoneEdge> route;
+	private static final Comparator<PheromoneEdge> comparator=new EdgeComparator();
 	
 	public Ant(Network network){
 		if(network==null){
 			throw new NullPointerException("null network");
 		}
 		id=index++;
+		length=0.0;
 		this.network=network;
-		route=new LinkedHashSet<>();
+		route=new ArrayList<>();
 	}
 	
-	public Ant initiate(int count,int origin,Collection<Integer> permission){
+	public void initiate(int count,int origin,Collection<Integer> permission){
+		if(permission==null){
+			throw new NullPointerException("null permission");
+		}
 		if(count<2||count>network.size()){
 			throw new IllegalArgumentException("invalid count");
 		}
@@ -40,38 +45,50 @@ public class Ant {
 		this.count=count;
 		this.permission=permission;
 		current=origin;
-		return this;
 	}
 	
 	public boolean stop(){
-		return count==route.size();
+		return count-1==route.size();
 	}
 	
 	public void move(){
 		PheromoneEdge edge=search();
 		current=edge.to();
-		permission.remove(current);
+		length+=edge.weight();
 		route.add(edge);
+		permission.remove(current);
 	}
 	
 	private PheromoneEdge search(){
-		Map<PheromoneEdge,Double> probabilities=new HashMap<>(permission.size());
-		List<PheromoneEdge> edges=network.getEdges(current).stream()
+		Map<PheromoneEdge,Double> utilities=new HashMap<>(permission.size());
+		network.getEdges(current).stream()
 				.filter(edge->permission.contains(edge.to()))
-				.collect(Collectors.toList());
-		edges.forEach(edge->probabilities.put(edge,edge.utility()));
-		double sum=probabilities.values().stream().mapToDouble(p->p).sum();
+				.sorted(comparator)
+				.limit(2)
+				.forEach(edge->utilities.put(edge,edge.utility()));
+		double sum=utilities.values().stream().mapToDouble(p->p).sum();
 		double random=Math.random();
 		double accumulation=0.0;
-		PheromoneEdge target=null;
-		for(Map.Entry<PheromoneEdge,Double> entry:probabilities.entrySet()){
+		PheromoneEdge output=null;
+		for(Map.Entry<PheromoneEdge,Double> entry:utilities.entrySet()){
 			accumulation+=entry.getValue();
 			if(accumulation/sum>random){
-				target=entry.getKey();
+				output=entry.getKey();
 				break;
 			}
 		}
-		return target;
+		return output;
+	}
+	
+	private static class EdgeComparator implements Comparator<PheromoneEdge>{
+
+		@Override
+		public int compare(PheromoneEdge o1, PheromoneEdge o2) {
+			// TODO Auto-generated method stub
+			double delta=o1.weight()-o2.weight();
+			return delta>0?1:(delta<0?-1:0);
+		}
+		
 	}
 	
 	@Override public String toString(){
@@ -80,31 +97,30 @@ public class Ant {
 		output+=String.format("current: %d\n",current);
 		output+=String.format("permit cities: %s\n",
 				permission.stream().map(a->a.toString()).collect(Collectors.joining("/")));
-		output+=String.format("route: %s\n",
-				route.stream().map(r->r.toString()).collect(Collectors.joining("/")));
+		output+=String.format("route: %s\n",getRoute());
+		output+=String.format("length: %.2f\n",length);
 		output+="###### end ######";
 		return output;
 	}
 	
-	public void updatePheromone(){
-		double length=route.stream().mapToDouble(edge->edge.weight()).sum();
-		route.forEach(edge->edge.accumulate(delta(length)));
+	private String getRoute(){
+		StringBuffer buffer=new StringBuffer();
+		boolean isFirstElement=true;
+		for(PheromoneEdge edge:route){
+			if(isFirstElement){
+				buffer.append(edge.from());
+				isFirstElement=false;
+			}
+			buffer.append("->").append(edge.to());
+		}
+		return buffer.toString();
 	}
 	
-	private double delta(double input){
-		return 1.0/input;
+	public void updatePheromone(){
+		route.forEach(edge->edge.accumulate(1.0/length));
 	}
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Network network=PheromoneMap.getMapDemo1();
-		Ant ant=new Ant(network).initiate(1,1,null);
-		System.out.println(ant);
-		while(!ant.stop()){
-			ant.move();
-			System.out.println(ant);
-		}
-		ant.updatePheromone();
-		System.out.println(network);
 	}
 }

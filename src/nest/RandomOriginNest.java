@@ -23,18 +23,23 @@ public class RandomOriginNest implements Nest{
 	@Override
 	public Collection<Ant> produceAntColony(int amount) {
 		// TODO Auto-generated method stub
-		Collection<Ant> ants=new ArrayList<>(amount);
 		List<Integer> vertexes=new ArrayList<>(network.vertexes());
 		List<Integer> origins=getRandomOrigin(vertexes,amount);
 		vertexes.removeAll(origins);
 		int[] groups=group(vertexes.size(),amount,1);
+		Collection<Ant> ants=new ArrayList<>(amount);
 		for(int i=0;i<amount;i++){
-			ants.add(new Ant(network).initiate(groups[i]+1,origins.get(i).intValue(),vertexes));
+			Ant ant=new Ant(network);
+			ant.initiate(groups[i]+1,origins.get(i),vertexes);
+			ants.add(ant);
 		}
 		return ants;
 	}
 	
 	private static List<Integer> getRandomOrigin(List<Integer> origins,int amount){
+		if(origins==null){
+			throw new NullPointerException("null origins");
+		}
 		if(amount>origins.size()){
 			throw new IllegalArgumentException("invalid arguments: origins, amount");
 		}
@@ -48,7 +53,7 @@ public class RandomOriginNest implements Nest{
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Nest nest=new RandomOriginNest(PheromoneGraph.getGraphDemo());
+		Nest nest=new RandomOriginNest(PheromoneGraph.getGraphDemo1());
 		nest.produceAntColony(2).forEach(System.out::println);
 	}
 }
